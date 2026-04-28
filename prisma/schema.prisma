@@ -1,0 +1,54 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Ledger {
+  id        String     @id @default(cuid())
+  name      String
+  type      String     @default("FRIENDS")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  members   Member[]
+  expenses  Expense[]
+}
+
+model Member {
+  id           String         @id @default(cuid())
+  name         String
+  ledgerId     String
+  ledger       Ledger         @relation(fields: [ledgerId], references: [id], onDelete: Cascade)
+  paidExpenses Expense[]      @relation("Payer")
+  splits       ExpenseSplit[]
+  createdAt    DateTime       @default(now())
+}
+
+model Expense {
+  id          String         @id @default(cuid())
+  title       String
+  amount      Float
+  date        DateTime       @default(now())
+  note        String?
+  category    String?
+  splitMethod String
+  ledgerId    String
+  payerId     String
+  ledger      Ledger         @relation(fields: [ledgerId], references: [id], onDelete: Cascade)
+  payer       Member         @relation("Payer", fields: [payerId], references: [id])
+  splits      ExpenseSplit[]
+  createdAt   DateTime       @default(now())
+}
+
+model ExpenseSplit {
+  id        String  @id @default(cuid())
+  expenseId String
+  memberId  String
+  amount    Float
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  member    Member  @relation(fields: [memberId], references: [id])
+}

@@ -1,0 +1,8 @@
+name = "moneyb"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "moneyb-db"
+database_id = "08ec2b95-b75c-445a-aa28-a2944b8c6d39"
