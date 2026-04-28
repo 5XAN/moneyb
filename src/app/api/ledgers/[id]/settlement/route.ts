@@ -1,6 +1,6 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { calculateBalances, calculateSettlement } from "@/lib/split-calculator";
 
 // GET /api/ledgers/[id]/settlement — 結算建議
@@ -9,6 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = await getPrisma();
     const { id } = await params;
 
     const ledger = await prisma.ledger.findUnique({

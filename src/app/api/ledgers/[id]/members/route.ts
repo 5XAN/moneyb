@@ -1,6 +1,6 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 // GET /api/ledgers/[id]/members
 export async function GET(
@@ -8,6 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = await getPrisma();
     const { id } = await params;
     const members = await prisma.member.findMany({
       where: { ledgerId: id },
@@ -26,6 +27,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = await getPrisma();
     const { id } = await params;
     const body = await request.json() as { name: string };
     const { name } = body;
@@ -34,7 +36,6 @@ export async function POST(
       return NextResponse.json({ error: "成員名稱不可為空" }, { status: 400 });
     }
 
-    // 確認帳本存在
     const ledger = await prisma.ledger.findUnique({ where: { id } });
     if (!ledger) {
       return NextResponse.json({ error: "帳本不存在" }, { status: 404 });

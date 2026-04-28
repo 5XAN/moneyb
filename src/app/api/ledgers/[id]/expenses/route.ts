@@ -1,6 +1,6 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { calculateSplits } from "@/lib/split-calculator";
 import type { SplitMethod, SplitInput } from "@/types";
 
@@ -10,6 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = await getPrisma();
     const { id } = await params;
     const expenses = await prisma.expense.findMany({
       where: { ledgerId: id },
@@ -32,6 +33,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = await getPrisma();
     const { id } = await params;
     const body = await request.json() as {
       title: string;
@@ -54,13 +56,11 @@ export async function POST(
       category,
     } = body;
 
-    // 基本驗證
     if (!title?.trim()) return NextResponse.json({ error: "標題不可為空" }, { status: 400 });
     if (!amount || amount <= 0) return NextResponse.json({ error: "金額必須大於 0" }, { status: 400 });
     if (!payerId) return NextResponse.json({ error: "請選擇付款人" }, { status: 400 });
     if (!splitsInput?.length) return NextResponse.json({ error: "請選擇分攤對象" }, { status: 400 });
 
-    // 呼叫核心計算模組
     let splitResults;
     try {
       splitResults = calculateSplits(
@@ -73,7 +73,6 @@ export async function POST(
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    // 建立支出及分攤明細（transaction）
     const expense = await prisma.$transaction(async (tx) => {
       const created = await tx.expense.create({
         data: {

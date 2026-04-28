@@ -1,9 +1,10 @@
 export const runtime = "edge";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const prisma = await getPrisma();
     const ledgers = await prisma.ledger.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -28,6 +29,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const prisma = await getPrisma();
     const body = await request.json() as { name: string; type?: string };
     const { name, type = "FRIENDS" } = body;
     if (!name?.trim()) {
