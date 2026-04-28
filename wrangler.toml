@@ -6,4 +6,4 @@ pages_build_output_dir = ".vercel/output/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "moneyb-db"
-database_id = "08ec2b95-b75c-445a-aa28-a2944b8c6d39"
+database_id = "db41d743-6569-4c11-8b04-1010189c3a88"
